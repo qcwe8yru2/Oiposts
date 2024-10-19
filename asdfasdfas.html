@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oi 게시판</title>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase SDK import
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+        // Firebase 구성 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbj0dZhPZ0zmpSwk8HVz6El8Wsdt-htXk",
+            authDomain: "oioo-a77d0.firebaseapp.com",
+            databaseURL: "https://oioo-a77d0-default-rtdb.firebaseio.com",
+            projectId: "oioo-a77d0",
+            storageBucket: "oioo-a77d0.appspot.com",
+            messagingSenderId: "483819782162",
+            appId: "1:483819782162:web:76df6b78b2a478391f18cb",
+            measurementId: "G-FQSC8M7HQJ"
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // 게시글 업로드 및 삭제 기능
+        document.addEventListener('DOMContentLoaded', () => {
+            const submitBtn = document.getElementById('submitBtn');
+            const contentInput = document.getElementById('content');
+            const postsDiv = document.getElementById('posts');
+            let deletePromptVisible = false;
+
+            // 게시글 업로드
+            submitBtn.addEventListener('click', () => {
+                const content = contentInput.value.trim();
+                if (content) {
+                    const postsRef = ref(database, 'posts');
+                    push(postsRef, {
+                        content: content,
+                        timestamp: Date.now()
+                    });
+                    contentInput.value = '';  // 입력 필드 초기화
+                }
+            });
+
+            // 게시글 실시간 불러오기
+            const postsRef = ref(database, 'posts');
+            onValue(postsRef, (snapshot) => {
+                postsDiv.innerHTML = '';  // 게시글 리스트 초기화
+                const posts = snapshot.val();
+                if (posts) {
+                    Object.keys(posts).sort((a, b) => posts[b].timestamp - posts[a].timestamp)
+                        .forEach((key) => {
+                            const postElement = document.createElement('div');
+                            postElement.classList.add('post');
+
+                            const postContent = document.createElement('span');
+                            postContent.textContent = posts[key].content;
+
+                            const deleteButton = document.createElement('span');
+                            deleteButton.textContent = ' X';
+                            deleteButton.classList.add('delete-btn');
+                            deleteButton.addEventListener('click', (event) => {
+                                event.stopPropagation();
+                                showDeletePrompt(key);
+                            });
+
+                            postElement.appendChild(postContent);
+                            postElement.appendChild(deleteButton);
+                            postsDiv.appendChild(postElement);
+                        });
+                }
+            });
+
+            // 삭제 확인 창 띄우기
+            function showDeletePrompt(postId) {
+                if (deletePromptVisible) return;
+                deletePromptVisible = true;
+
+                const deletePrompt = document.createElement('div');
+                deletePrompt.classList.add('delete-prompt');
+                deletePrompt.innerHTML = `
+                    <input type="text" placeholder="key" id="deleteCode"/>
+                    <button id="confirmDeleteBtn">확인</button>
+                `;
+                document.body.appendChild(deletePrompt);
+
+                // 삭제 확인 버튼 클릭
+                document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+                    const enteredCode = document.getElementById('deleteCode').value.trim();
+                    if (enteredCode === '809') {
+                        remove(ref(database, `posts/${postId}`)); // 809을 입력해야 게시물 삭제
+                        deletePrompt.remove(); // 삭제 확인 창 닫기
+                        deletePromptVisible = false;
+                    } else {
+                        alert('코드가 틀렸습니다.');
+                        deletePrompt.remove(); // 틀리면 창 닫기
+                        deletePromptVisible = false;
+                    }
+                });
+
+                // 입력 창 외부 클릭 시 삭제 확인 창 닫기
+                document.addEventListener('click', function closePrompt(event) {
+                    if (!deletePrompt.contains(event.target)) {
+                        deletePrompt.remove();
+                        deletePromptVisible = false;
+                        document.removeEventListener('click', closePrompt);
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #830000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #posts {
+            margin-top: 20px;
+            width: 600px; /* 게시물을 더 넓게 설정 */
+        }
+
+        .post {
+            background-color: #f9f9f9;
+            padding: 20px; /* 더 넓은 공간 */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            word-wrap: break-word;
+        }
+
+        .delete-btn {
+            color: red;
+            cursor: pointer;
+        }
+
+        .delete-prompt {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .delete-prompt input {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .delete-prompt button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-prompt button:hover {
+            background-color: #830000;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Oi 게시판</h1>
+
+        <!-- 게시글 입력 폼 -->
+        <div class="form-container">
+            <textarea id="content" placeholder="내용을 입력하세요..." rows="5"></textarea>
+            <button id="submitBtn">업로드</button>
+        </div>
+
+        <!-- 게시글 리스트 -->
+        <div id="posts"></div>
+    </div>
+</body>
+</html>
+
