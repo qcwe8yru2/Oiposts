@@ -84,7 +84,7 @@
                 const deletePrompt = document.createElement('div');
                 deletePrompt.classList.add('delete-prompt');
                 deletePrompt.innerHTML = `
-                    <input type="text" placeholder="key" id="deleteCode"/>
+                    <input type="text" placeholder="809을 입력하세요" id="deleteCode"/>
                     <button id="confirmDeleteBtn">확인</button>
                 `;
                 document.body.appendChild(deletePrompt);
@@ -124,12 +124,23 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
 
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            font-size: 1.5em;
         }
 
         .form-container {
@@ -143,11 +154,13 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
         }
 
         button {
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             background-color: #830000;
             color: white;
             border: none;
@@ -157,17 +170,16 @@
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #830000;
         }
 
         #posts {
             margin-top: 20px;
-            width: 600px; /* 게시물을 더 넓게 설정 */
         }
 
         .post {
             background-color: #f9f9f9;
-            padding: 20px; /* 더 넓은 공간 */
+            padding: 20px;
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -180,6 +192,7 @@
         .delete-btn {
             color: red;
             cursor: pointer;
+            font-size: 1.2em;
         }
 
         .delete-prompt {
@@ -193,6 +206,7 @@
             border-radius: 10px;
             display: flex;
             flex-direction: column;
+            max-width: 90%;
         }
 
         .delete-prompt input {
@@ -200,24 +214,51 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 16px;
         }
 
         .delete-prompt button {
-            padding: 10px;
-            background-color: #4CAF50;
+            padding: 15px;
+            background-color: #830000;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
 
         .delete-prompt button:hover {
-            background-color: #830000;
+            background-color: #45a049;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                width: 100%;
+                padding: 15px;
+            }
+
+            button, .delete-prompt button {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            .post {
+                padding: 15px;
+                font-size: 14px;
+            }
+
+            h1 {
+                font-size: 1.3em;
+            }
         }
     </style>
 </head>
 <body>
-    <div>
+    <div class="container">
         <h1>Oi 게시판</h1>
 
         <!-- 게시글 입력 폼 -->
@@ -231,4 +272,3 @@
     </div>
 </body>
 </html>
-
